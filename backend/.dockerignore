@@ -1,0 +1,9 @@
+# 不烤进镜像 / 不发给 build context
+.venv/
+__pycache__/
+*.pyc
+.env
+*.db
+.pytest_cache/
+.dockerignore
+Dockerfile

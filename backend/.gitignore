@@ -1,0 +1,20 @@
+# 真实密钥与环境
+.env
+.env.local
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# 本地回退库（SQLite spike / 测试）
+spike.db
+*.db
+phase05*.db
+
+# 运行时产物
+*.log
+
+# 媒体上传落盘（微信富媒体 008：文件传输助手/图片），绝不进 git
+uploads/

@@ -1,0 +1,11 @@
+{
+  "servers": [
+    {
+      "name": "dev_tools",
+      "command": "python",
+      "args": ["/app/app/mcp_demo_server.py"],
+      "enabled": false,
+      "description": "演示工具：当前时间 / 掷骰子 / 安全计算器 / 城市天气（open-meteo）"
+    }
+  ]
+}

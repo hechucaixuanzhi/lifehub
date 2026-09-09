@@ -1,0 +1,55 @@
+# ===== Secrets（最高优先级，绝不提交）=====
+.env
+.env.*
+!.env.example
+
+# ===== Python =====
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+*.db
+spike.db
+
+# ===== Flutter / Dart =====
+.dart_tool/
+build/
+*.apk
+*.aab
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+android/.gradle/
+android/app/debug/
+android/app/profile/
+
+# ===== OS / Editor =====
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# ===== Agent workspace state（非源码，不提交）=====
+.workbuddy/
+
+# ===== 私人素材（授权音频/截图等，不提交）=====
+artifacts/
+backend/uploads/
+backend/.env
+app/assets/models/*.tflite
+*.sqlite
+*.sqlite3
+*.db
+*.sql.gz
+*.dump
+exports/
+docs/_verify0.log
+
+# ===== 临时分析产物（dart analyze 等日志残留，不提交）=====
+app/a1.txt
+app/an2.txt
+app/an3.txt
+app/an4.txt
+app/analyze_log.txt

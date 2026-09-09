@@ -1,0 +1,59 @@
+name: lifehub
+description: LifeHub — Personal AI OS (local-first Flutter client)
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.6.0
+  flutter: ^3.27.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  # 本地主库（Drift / SQLite，离线优先）
+  drift: ^2.21.0
+  drift_flutter: ^0.2.2
+  sqlite3_flutter_libs: ^0.5.24
+  path_provider: ^2.1.4
+  # 状态管理（PRD 锁定 Riverpod）
+  flutter_riverpod: ^2.5.1
+  # 网络与签名（Device Key Pair，对齐后端 auth.py；cryptography 标准 Ed25519，与后端 Python cryptography 互通）
+  http: ^1.2.2
+  cryptography: ^2.7.0
+  crypto: ^3.0.5
+  # 私钥存储（secure_storage，不落明文）
+  flutter_secure_storage: ^9.2.2
+  # 宠物照片选择（存手机本地文档目录，仅记路径）
+  image_picker: ^1.1.2
+  # 本地实体 ID
+  uuid: ^4.5.1
+  # 图标集（PRD §4.3 冻结候选：Phosphor，Duotone 双色契合状态填充设计）
+  phosphor_flutter: 2.1.0
+  health: ^13.3.1
+  shared_preferences: ^2.5.5
+  crop_your_image: ^2.0.0
+  fl_chart: ^1.2.0
+  # AI 语音消息（S2）：按住说话录音 / 播放 / 离线 ASR（sherpa_onnx 中文 zipformer）+ 模型解压
+  record: ^6.1.2
+  just_audio: ^0.9.40
+  # 角色音色：从系统文件选择器导入本人或已获授权的 mp3/m4a/wav 样本
+  file_picker: ^11.0.2
+  sherpa_onnx: ^1.13.0
+  archive: ^4.0.2
+  # 自我识别（#132-134）：ML Kit 人脸检测（只检测不做 embedding）+ tflite 本地跑
+  # MobileFaceNet(mobile_face_net.tflite, 192d) 逐脸提取 embedding + image 解码缩放
+  google_mlkit_face_detection: ^0.13.0
+  tflite_flutter: ^0.11.0
+  image: ^4.3.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  drift_dev: ^2.21.0
+  build_runner: ^2.4.13
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/stickers/
+    - assets/models/
