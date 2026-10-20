@@ -1,0 +1,21 @@
+name: Chat-only mode
+on:
+  pull_request:
+    paths:
+      - 'backend/**'
+      - 'app/lib/app.dart'
+      - 'app/lib/main.dart'
+      - 'app/lib/core/feature_flags.dart'
+      - '.github/workflows/chat-only-mode.yml'
+permissions:
+  contents: read
+jobs:
+  reversible-mode:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m compileall -q backend/app backend/tools/test_chat_only_mode.py
+      - run: python -m unittest discover -s backend/tools -p test_chat_only_mode.py -v

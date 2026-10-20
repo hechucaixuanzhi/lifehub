@@ -621,6 +621,11 @@ TOOL_GUIDANCE = (
 )
 
 
+# Keep dormant tool definitions in source, but never advertise them in chat-only mode.
+if not config.LIFE_TRACKING_ENABLED:
+    AI_TOOLS = [tool for tool in AI_TOOLS if tool["function"]["name"] == "search_memories"]
+
+
 def _parse_date(value, default: date | None = None) -> date | None:
     """YYYY-MM-DD 或 YYYY-MM-DDTHH:MM:SS → date；解析失败返回 default。"""
     if not value:
@@ -1359,6 +1364,9 @@ def _build_tools() -> list[dict]:
 def _execute_tool(name: str, args: dict, character_id: str) -> dict | list:
     """执行只读工具；任何异常都转为错误结果返回给 AI（不让整个对话失败）。"""
     try:
+        if not config.LIFE_TRACKING_ENABLED and not name.startswith("mcp__"):
+            if name != "search_memories":
+                return {"error": "This tool is disabled in AI chat-only mode."}
         if name.startswith("mcp__"):
             return _execute_mcp_tool(name, args)
         if name == "query_steps":

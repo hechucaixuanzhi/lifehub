@@ -1,8 +1,8 @@
 # LifeHub Open
 
 LifeHub Open is a local-first Flutter and FastAPI application for personal
-life tracking and configurable AI conversations. It includes habits, study,
-exercise, moments, a companion-chat engine, character cards, worldbooks,
+configurable AI conversations. The default app opens directly into AI chat.
+It includes moments, a companion-chat engine, character cards, worldbooks,
 per-character memories, and optional vector retrieval.
 
 This repository is a clean public distribution. It intentionally contains:
@@ -71,3 +71,25 @@ see [THIRD_PARTY.md](docs/THIRD_PARTY.md).
 
 This is an early public release. The included example characters are starting
 points, not trained identities or representations of real people.
+
+## Temporarily dormant modules
+
+Life tracking, study, exercise, pets, inbox and the activity timeline are hidden
+by default. Their implementation, database tables and existing records are retained.
+No database migration or data deletion is performed by this change.
+
+In chat-only mode, life-data seeding and mobile push/pull sync do not run;
+the backend does not expose /sync, /timeline or /mi_fitness routes and does not
+start the fitness scheduler or initialize life-data snapshots. Life-data tools
+are neither advertised to the model nor executable. Device registration, AI
+chat, characters, groups, worldbooks, memories, voice, media and moments remain.
+
+To restore the dormant modules, set LIFE_TRACKING_ENABLED=true in backend/.env
+and restart the backend, then rebuild the client using:
+
+```bash
+flutter run --dart-define=LIFE_TRACKING_ENABLED=true
+```
+
+Keep both switches aligned. The fitness scheduler still requires its separate
+MI_FITNESS_SYNC_ENABLED setting and valid provider credentials.

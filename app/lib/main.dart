@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart';
 
+import 'core/feature_flags.dart';
 import 'core/auth/device_key_pair.dart';
 import 'core/database/app_database.dart';
 import 'core/network/api_client.dart';
@@ -28,9 +29,11 @@ Future<void> main() async {
 
   // 2) 本地主库 + 默认种子（首次启动）
   final db = AppDatabase();
-  await _seedDefaultHabits(db);
-  await _seedExerciseTypes(db);
-  await _seedStudyResources(db);
+  if (FeatureFlags.lifeTrackingEnabled) {
+    await _seedDefaultHabits(db);
+    await _seedExerciseTypes(db);
+    await _seedStudyResources(db);
+  }
 
   // 3) API / Sync 构造（注册与同步放到首帧后后台执行，首帧不再等网络）
   final api = ApiClient(device);
@@ -46,8 +49,9 @@ Future<void> main() async {
         lifeRepositoryProvider.overrideWithValue(DriftLifeRepository(db)),
         inboxRepositoryProvider.overrideWithValue(DriftInboxRepository(db)),
         studyRepositoryProvider.overrideWithValue(DriftStudyRepository(db)),
-        exerciseRepositoryProvider
-            .overrideWithValue(DriftExerciseRepository(db)),
+        exerciseRepositoryProvider.overrideWithValue(
+          DriftExerciseRepository(db),
+        ),
         petRepositoryProvider.overrideWithValue(DriftPetRepository(db)),
       ],
       child: const App(),
@@ -56,7 +60,9 @@ Future<void> main() async {
 
   // 首帧后后台网络初始化：注册设备 → 推本地变更 → 拉增量。
   // 失败静默不影响 UI；本地数据先出、后台刷新（先旧后新）。
-  WidgetsBinding.instance.addPostFrameCallback((_) => _bootstrapNetwork(api, sync));
+  WidgetsBinding.instance.addPostFrameCallback(
+    (_) => _bootstrapNetwork(api, sync),
+  );
 }
 
 /// 后台网络引导：register（推送公钥）→ push（本地待同步变更）→ pull（拉增量）。
@@ -67,6 +73,8 @@ Future<void> _bootstrapNetwork(ApiClient api, SyncManager sync) async {
   } on Object {
     // 服务器未启动 / 离线：本地优先，忽略
   }
+  // Device registration remains available for signed AI chat requests.
+  if (!FeatureFlags.lifeTrackingEnabled) return;
   try {
     await sync.push();
   } on Object {
@@ -86,7 +94,16 @@ Future<void> _seedDefaultHabits(AppDatabase db) async {
   const defaults = [
     // id, name, icon, color, target, unit, mode, behavior
     ('habit_water', '喝水', 'water', 0xFF2196F3, 8, '杯', 'counter', 'normal'),
-    ('habit_sleep', '睡眠', 'sleep', 0xFF9C27B0, 480, 'min', 'timer', 'overnight'),
+    (
+      'habit_sleep',
+      '睡眠',
+      'sleep',
+      0xFF9C27B0,
+      480,
+      'min',
+      'timer',
+      'overnight',
+    ),
     ('habit_sun', '晒太阳', 'sun', 0xFFFBC02D, 20, 'min', 'timer', 'normal'),
     ('habit_med', '冥想', 'meditate', 0xFF4CAF50, 10, 'min', 'timer', 'normal'),
     ('habit_meal', '三餐', 'meal', 0xFFFF9800, 3, '次', 'counter', 'normal'),
@@ -116,7 +133,9 @@ Future<void> _seedExerciseTypes(AppDatabase db) async {
   final existing = await db.select(db.exerciseTypes).get();
   if (existing.isNotEmpty) return;
   for (final p in exercisePresets) {
-    await db.into(db.exerciseTypes).insert(
+    await db
+        .into(db.exerciseTypes)
+        .insert(
           ExerciseTypesCompanion.insert(
             id: p.id,
             name: p.name,
@@ -145,7 +164,9 @@ Future<void> _seedStudyResources(AppDatabase db) async {
     ('sr_jp', '日语', '日语', 'language', 0xFFE67E22, 15, 'min'),
   ];
   for (final d in defaults) {
-    await db.into(db.studyResources).insert(
+    await db
+        .into(db.studyResources)
+        .insert(
           StudyResourcesCompanion.insert(
             id: d.$1,
             name: d.$2,
