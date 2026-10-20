@@ -1,0 +1,37 @@
+name: Remote chat recovery
+on:
+  push:
+    branches: [restore/remote-chat]
+permissions:
+  contents: read
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.6'
+          channel: stable
+          cache: true
+      - run: flutter pub get
+        working-directory: app
+      - run: flutter test test/api_config_test.dart
+        working-directory: app
+      - run: flutter analyze --no-fatal-infos --no-fatal-warnings lib/core/network/api_config.dart lib/features/ai/ui/ai_settings_page.dart lib/main.dart lib/features/settings/ui/settings_page.dart
+        working-directory: app
+      - run: flutter build apk --debug --target-platform android-arm64 --dart-define=LIFE_TRACKING_ENABLED=false --dart-define=API_BASE_URL=https://offices-represented-evanescence-economic.trycloudflare.com
+        working-directory: app
+      - name: Collect public signing tool
+        run: cp "$(find "$ANDROID_HOME/build-tools" -path '*/lib/apksigner.jar' | sort -V | tail -1)" apksigner.jar
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lifehub-remote-chat
+          path: |
+            app/build/app/outputs/flutter-apk/app-debug.apk
+            apksigner.jar
+          retention-days: 7

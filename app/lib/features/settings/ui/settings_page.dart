@@ -77,7 +77,7 @@ class MyPanel extends ConsumerWidget {
                 subtitle: device.deviceId,
               ),
               _Divider(),
-              const _Tile(
+              _Tile(
                 icon: AppNavIcons.home,
                 title: '服务器',
                 subtitle: ApiConfig.baseUrl,

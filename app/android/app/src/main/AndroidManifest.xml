@@ -8,7 +8,7 @@
     <uses-permission android:name="android.permission.health.READ_STEPS"/>
     <uses-permission android:name="android.permission.health.READ_DISTANCE"/>
     <application
-        android:label="lifehub"
+        android:label="LifeHub 远程版"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

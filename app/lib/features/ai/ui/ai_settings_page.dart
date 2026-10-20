@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/providers.dart';
+import '../../../core/network/api_config.dart';
 import '../../../core/theme/app_theme.dart';
 import 'reply_guideline_page.dart';
 
@@ -23,6 +24,62 @@ class _AiSettingsPageState extends ConsumerState<AiSettingsPage> {
   bool? _configured;
   String? _testReply;
   String? _error;
+
+  Future<void> _editServer() async {
+    var address = ApiConfig.baseUrl;
+    String? error;
+    bool saving = false;
+    final saved = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => StatefulBuilder(
+        builder: (context, update) => AlertDialog(
+          title: const Text('服务器地址'),
+          content: TextFormField(
+            initialValue: address,
+            onChanged: (value) => address = value,
+            enabled: !saving,
+            keyboardType: TextInputType.url,
+            autocorrect: false,
+            decoration: InputDecoration(
+              hintText: 'https://example.com',
+              errorText: error,
+              helperText: '填写你信任的 LifeHub 后端地址',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: saving ? null : () => Navigator.pop(context, false),
+              child: const Text('取消'),
+            ),
+            FilledButton(
+              onPressed: saving ? null : () async {
+                update(() { saving = true; error = null; });
+                try {
+                  await ApiConfig.saveBaseUrl(address);
+                  if (context.mounted) Navigator.pop(context, true);
+                } catch (e) {
+                  if (context.mounted) update(() {
+                    error = e is FormatException ? e.message : '保存失败，请重试';
+                    saving = false;
+                  });
+                }
+              },
+              child: Text(saving ? '保存中…' : '保存'),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (!mounted || saved != true) return;
+    setState(() { _configured = null; _provider = null; _model = null; });
+    try {
+      await ref.read(apiProvider).register();
+    } catch (_) {
+      // Persist the address for retry; the connection check shows failures.
+    }
+    if (mounted) await _check();
+  }
 
   @override
   void initState() {
@@ -106,6 +163,14 @@ class _AiSettingsPageState extends ConsumerState<AiSettingsPage> {
         body: ListView(
           padding: const EdgeInsets.all(24),
           children: [
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('服务器地址'),
+              subtitle: Text(ApiConfig.baseUrl),
+              trailing: const Icon(Icons.edit_outlined),
+              onTap: _loading ? null : _editServer,
+            ),
+            const Divider(),
             const Text('AI 服务',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
             const SizedBox(height: 16),

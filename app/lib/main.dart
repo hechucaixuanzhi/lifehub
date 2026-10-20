@@ -6,6 +6,7 @@ import 'core/feature_flags.dart';
 import 'core/auth/device_key_pair.dart';
 import 'core/database/app_database.dart';
 import 'core/network/api_client.dart';
+import 'core/network/api_config.dart';
 import 'core/providers.dart';
 import 'core/sync/sync_manager.dart';
 import 'features/inbox/data/drift_inbox_repository.dart';
@@ -23,6 +24,7 @@ import 'app.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await ApiConfig.initialize();
 
   // 1) Device Key Pair（首次生成并持久化）
   final device = await DeviceKeyPair.loadOrCreate();
