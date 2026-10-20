@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'features/shell/app_shell.dart';
+import 'features/wechat/wechat_shell.dart';
+import 'core/feature_flags.dart';
 import 'core/theme/app_theme.dart';
 
 class App extends StatelessWidget {
@@ -8,9 +10,11 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => MaterialApp(
-        title: 'LifeHub',
-        theme: AppTheme.light(),
-        home: const AppShell(),
-        debugShowCheckedModeBanner: false,
-      );
+    title: 'LifeHub',
+    theme: AppTheme.light(),
+    home: FeatureFlags.lifeTrackingEnabled
+        ? const AppShell()
+        : const WeChatShell(),
+    debugShowCheckedModeBanner: false,
+  );
 }

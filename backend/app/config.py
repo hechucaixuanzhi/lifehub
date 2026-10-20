@@ -92,3 +92,6 @@ AI_CHAT_HISTORY_MAX_CHARS = int(os.getenv("AI_CHAT_HISTORY_MAX_CHARS", "16000"))
 AI_STICKER_REPLIES_ENABLED = os.getenv(
     "AI_STICKER_REPLIES_ENABLED", "false"
 ).lower() == "true"
+
+# Dormant life/study/exercise modules: preserve code and existing data.
+LIFE_TRACKING_ENABLED = os.getenv("LIFE_TRACKING_ENABLED", "false").lower() == "true"

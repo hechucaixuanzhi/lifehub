@@ -135,9 +135,11 @@ def _startup() -> None:
         public_moment_seeds.seed_public_moments(session)
         session.commit()
     sticker_seeds.seed_stickers()  # 表情包目录（009）：幂等 upsert
-    mi_fitness_sync.start_scheduler()
+    if config.LIFE_TRACKING_ENABLED:
+        mi_fitness_sync.start_scheduler()
     try:
-        snapshot.ensure_snapshot()  # 当前态镜像：reconcile（事件权威）+ seed（补默认）
+        if config.LIFE_TRACKING_ENABLED:
+            snapshot.ensure_snapshot()  # 当前态镜像：reconcile（事件权威）+ seed（补默认）
     except Exception:
         import logging
         logging.getLogger("lifehub").exception("snapshot ensure failed")
@@ -4047,3 +4049,17 @@ async def mi_fitness_workouts(
             for r in rows
         ]
     }
+
+
+# Keep dormant implementations and historical data, but do not expose their APIs.
+# Re-enable before process startup together with the mobile feature flag.
+if not config.LIFE_TRACKING_ENABLED:
+    _dormant_api_prefixes = ("/sync", "/timeline", "/mi_fitness")
+    app.router.routes[:] = [
+        route for route in app.router.routes
+        if not any(
+            getattr(route, "path", "") == prefix
+            or getattr(route, "path", "").startswith(prefix + "/")
+            for prefix in _dormant_api_prefixes
+        )
+    ]
